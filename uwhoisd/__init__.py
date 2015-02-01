@@ -116,7 +116,7 @@ class UWhois(object):
         """
         return self.prefixes[zone] if zone in self.prefixes else ''
 
-    def whois(self, query):
+    def whois(self, query, addr):
         """
         Query the appropriate WHOIS server.
         """
@@ -130,7 +130,7 @@ class UWhois(object):
         # Query the registry's WHOIS server.
         server, port = self.get_whois_server(zone)
         with net.WhoisClient(server, port) as client:
-            logger.info("Querying %s about %s", server, query)
+            logger.info("Querying %s about %s from %s", server, query, addr[0])
             response = client.whois(self.get_prefix(zone) + query)
 
         # Thin registry? Query the registrar's WHOIS server.
@@ -175,14 +175,14 @@ def main():
                 max_size=parser.getint('cache', 'max_size'),
                 max_age=parser.getint('cache', 'max_age'))
 
-            def whois(query):
+            def whois(query, addr):
                 """Caching wrapper around UWhois."""
                 cache.evict_expired()
                 if query in cache:
                     logger.info("Cache hit for %s", query)
                     response = cache[query]
                 else:
-                    response = uwhois.whois(query)
+                    response = uwhois.whois(query, addr)
                     cache[query] = response
                 return response
         else:
