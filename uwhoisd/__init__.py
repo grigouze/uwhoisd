@@ -34,6 +34,7 @@ logger = logging.getLogger('uwhoisd')
 
 
 class UWhois(object):
+
     """
     Universal WHOIS proxy.
     """

@@ -24,3 +24,18 @@ def read_transcript(name):
     """Read a WHOIS transcript file."""
     with open(path.join(HERE, 'transcripts', name), 'r') as fh:
         return fh.read()
+
+
+class MockWhoisServerPort(uwhoisd.UWhois):
+
+    def get_whois_server(self, zone):
+        return "127.0.0.1", 4343
+
+
+def create_uwhois_mock_whois_server_port():
+    """Prepare a UWhois object for testing."""
+    config = path.join(HERE, '..', 'extra', 'uwhoisd.ini')
+    parser = make_config_parser(uwhoisd.CONFIG, config)
+    uwhois = MockWhoisServerPort()
+    uwhois.read_config(parser)
+    return uwhois
