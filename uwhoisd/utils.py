@@ -31,6 +31,19 @@ def make_config_parser(defaults=None, config_path=None):
 def is_well_formed_fqdn(fqdn):
     """
     Check if a string looks like a well formed FQDN.
+
+    >>> is_well_formed_fqdn('mydomain.com')
+    True
+    >>> is_well_formed_fqdn('notagoodone')
+    False
+    >>> is_well_formed_fqdn('x' * 64 + '.net')
+    False
+    >>> is_well_formed_fqdn('domainname' + '.' + 'x' * 64)
+    False
+    >>> is_well_formed_fqdn('domainname.co.uk')
+    True
+    >>> is_well_formed_fqdn('domainname.bla.co.uk')
+    True
     """
     return FQDN_PATTERN.match(fqdn) is not None
 
