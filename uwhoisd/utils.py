@@ -9,6 +9,7 @@ import re
 import StringIO
 import time
 
+from ratelimiting import RateLimiting
 
 # We only accept ASCII or ACE-encoded domain names. IDNs must be converted
 # to ACE first.
@@ -186,3 +187,14 @@ class Cache(object):
             counter = 0
         self.cache[key] = (counter + 1, value)
         self.queue.append((self.clock(), key))
+
+
+class RateLimitingWhois(RateLimiting):
+
+    """ For rate limit queries """
+
+    def __enter__(self):
+        """Just raise and don't wait like the original module"""
+        if len(self.calls) >= self.max_calls:
+            raise ValueError("Ratelimited")
+        return self
