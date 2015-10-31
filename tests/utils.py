@@ -11,10 +11,14 @@ from uwhoisd.utils import make_config_parser
 HERE = path.dirname(__file__)
 
 
-def create_uwhois():
+def create_uwhois(default_config=None):
     """Prepare a UWhois object for testing."""
-    config = path.join(HERE, '..', 'extra', 'uwhoisd.ini')
-    parser = make_config_parser(uwhoisd.CONFIG, config)
+    if default_config is None:
+        config = path.join(HERE, '..', 'extra', 'uwhoisd.ini')
+        parser = make_config_parser(uwhoisd.CONFIG, config)
+    else:
+        parser = make_config_parser(default_config, '')
+
     uwhois = uwhoisd.UWhois()
     uwhois.read_config(parser)
     return uwhois
