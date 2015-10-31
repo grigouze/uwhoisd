@@ -92,6 +92,17 @@ class UWhois(object):
                 utils.decode_value(pattern),
                 re.I)
 
+        if parser.has_section('ratelimit'):
+            whitelist = parser.get('ratelimit', 'whitelist').split("\n")
+            blacklist = parser.get('ratelimit', 'blacklist').split("\n")
+            self.whitelisted_re = '|'.join(utils.ip_to_regexp(ip) for ip in whitelist if ip != '')
+            self.blacklisted_re = '|'.join(utils.ip_to_regexp(ip) for ip in blacklist if ip != '')
+            req_number = parser.getint('ratelimit', 'req_number')
+            req_interval = parser.getint('ratelimit', 'req_interval')
+            logger.info("%s %s", self.whitelisted_re, self.blacklisted_re)
+
+            self.rate_limiter = utils.RateLimitingWhois(max_calls=req_number, period=req_interval)
+
     def get_whois_server(self, zone):
         """
         Get the WHOIS server for the given zone.
@@ -202,17 +213,6 @@ def main():
 
         uwhois = UWhois()
         uwhois.read_config(parser)
-
-        if parser.has_section('ratelimit'):
-            whitelist = parser.get('ratelimit', 'whitelist').split("\n")
-            blacklist = parser.get('ratelimit', 'blacklist').split("\n")
-            uwhois.whitelisted_re = '|'.join(utils.ip_to_regexp(ip) for ip in whitelist if ip != '')
-            uwhois.blacklisted_re = '|'.join(utils.ip_to_regexp(ip) for ip in blacklist if ip != '')
-            req_number = parser.getint('ratelimit', 'req_number')
-            req_interval = parser.getint('ratelimit', 'req_interval')
-            logger.info("%s %s", uwhois.whitelisted_re, uwhois.blacklisted_re)
-
-            uwhois.rate_limiter = utils.RateLimitingWhois(max_calls=req_number, period=req_interval)
 
         if parser.has_section('cache'):
             logger.info("Caching activated")
