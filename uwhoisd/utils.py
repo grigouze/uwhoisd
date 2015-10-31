@@ -103,6 +103,25 @@ def decode_value(s):
     return s
 
 
+def ip_to_regexp(ip):
+    list_ip = ip.split('.')
+    for count, part in enumerate(list_ip):
+        if re.search('\*', part):
+            list_ip[count] = '\d+'
+            continue
+        if re.search('\d+,', part):
+            list_ip[count] = "(?:%s)" % re.sub(',', '|', part)
+            continue
+        if re.search('(\d+)-(\d+)', part):
+            ww = re.search('(\d+)-(\d+)', part)
+            list_ip[count] = "(?:" + '|'.join([str(x) for x in range(int(ww.group(1)), int(ww.group(2)) + 1)]) + ")"
+            continue
+
+    regexp = '^' + '\.'.join(list_ip) + '$'
+
+    return regexp
+
+
 # pylint: disable-msg=R0924
 class Cache(object):
     """

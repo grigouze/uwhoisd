@@ -206,8 +206,8 @@ def main():
         if parser.has_section('ratelimit'):
             whitelist = parser.get('ratelimit', 'whitelist').split("\n")
             blacklist = parser.get('ratelimit', 'blacklist').split("\n")
-            uwhois.whitelisted_re = '|'.join(ip for ip in whitelist if ip != '')
-            uwhois.blacklisted_re = '|'.join(ip for ip in blacklist if ip != '')
+            uwhois.whitelisted_re = '|'.join(utils.ip_to_regexp(ip) for ip in whitelist if ip != '')
+            uwhois.blacklisted_re = '|'.join(utils.ip_to_regexp(ip) for ip in blacklist if ip != '')
             req_number = parser.getint('ratelimit', 'req_number')
             req_interval = parser.getint('ratelimit', 'req_interval')
             logger.info("%s %s", uwhois.whitelisted_re, uwhois.blacklisted_re)
