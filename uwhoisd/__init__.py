@@ -46,6 +46,7 @@ class UWhois(object):
         'recursion_patterns',
         'registry_whois',
         'suffix',
+        'bind',
         'whitelisted_re',
         'blacklisted_re',
         'rate_limiter',
@@ -59,6 +60,7 @@ class UWhois(object):
         self.recursion_patterns = {}
         self.registry_whois = False
         self.conservative = ()
+        self.bind = None
 
     def _get_dict(self, parser, section):
         """
@@ -79,6 +81,7 @@ class UWhois(object):
         self.registry_whois = utils.to_bool(
             parser.get('uwhoisd', 'registry_whois'))
         self.suffix = parser.get('uwhoisd', 'suffix')
+        self.bind = parser.get('uwhoisd', 'bind')
         self.conservative = [
             zone
             for zone in parser.get('uwhoisd', 'conservative').split("\n")
@@ -174,7 +177,7 @@ class UWhois(object):
 
         # Query the registry's WHOIS server.
         server, port = self.get_whois_server(zone)
-        with net.WhoisClient(server, port) as client:
+        with net.WhoisClient(server, port, source_ip=self.bind) as client:
             logger.info("Querying %s about %s from %s", server, query, addr[0])
             response = client.whois(self.get_prefix(zone) + query)
 
@@ -184,7 +187,7 @@ class UWhois(object):
             if server is not None:
                 if not self.registry_whois:
                     response = ""
-                with net.WhoisClient(server, port) as client:
+                with net.WhoisClient(server, port, source_ip=self.bind) as client:
                     logger.info(
                         "Recursive query to %s about %s",
                         server, query)

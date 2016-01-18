@@ -4,6 +4,7 @@ from tests import utils
 DEFAULT_CONFIG = """
 [uwhoisd]
 iface=0.0.0.0
+bind=0.0.0.0
 port=4343
 registry_whois=false
 suffix=whois-servers.net
